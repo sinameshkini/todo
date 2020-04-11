@@ -1,0 +1,11 @@
+{
+  "database": {
+    "postgres": {
+      "host": "localhost",
+      "port": "5432",
+      "user": "sina",
+      "dbname": "dakhou",
+      "password": "M@$!n@m75"
+    }
+  }
+}
