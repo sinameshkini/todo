@@ -21,16 +21,15 @@ type basicTodoService struct{}
 
 func (b *basicTodoService) Get(ctx context.Context) (t []io.Todo, error error) {
 	session := db.ConnectPGDB()
-	//if err != nil{
-	//	return t, err
-	//}
 	defer session.Close()
 	error = session.Find(&t).Error
 	return t, error
 }
 func (b *basicTodoService) Add(ctx context.Context, todo io.Todo) (t io.Todo, error error) {
-	// TODO implement the business logic of Add
-	return t, error
+	session := db.ConnectPGDB()
+	defer session.Close()
+	error = session.Create(&todo).Error
+	return todo, error
 }
 func (b *basicTodoService) SetComplete(ctx context.Context, id string) (error error) {
 	// TODO implement the business logic of SetComplete
@@ -42,7 +41,14 @@ func (b *basicTodoService) RemoveComplete(ctx context.Context, id string) (error
 }
 func (b *basicTodoService) Delete(ctx context.Context, id string) (error error) {
 	// TODO implement the business logic of Delete
-	return error
+	session := db.ConnectPGDB()
+	defer session.Close()
+	todo := io.Todo{}
+	err := session.Where("id = ?", id).Find(&todo).Error
+	if err != nil{
+		return err
+	}
+	return session.Delete(&todo).Error
 }
 
 // NewBasicTodoService returns a naive, stateless implementation of TodoService.

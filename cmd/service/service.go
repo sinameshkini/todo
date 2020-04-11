@@ -4,6 +4,17 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net"
+	http2 "net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"todo/pkg/db"
+	endpoint "todo/pkg/endpoint"
+	http1 "todo/pkg/http"
+	"todo/pkg/io"
+	service "todo/pkg/service"
+
 	endpoint1 "github.com/go-kit/kit/endpoint"
 	log "github.com/go-kit/kit/log"
 	prometheus "github.com/go-kit/kit/metrics/prometheus"
@@ -16,16 +27,8 @@ import (
 	prometheus1 "github.com/prometheus/client_golang/prometheus"
 	promhttp "github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
-	"net"
-	http2 "net/http"
-	"os"
-	"os/signal"
 	appdash "sourcegraph.com/sourcegraph/appdash"
 	opentracing "sourcegraph.com/sourcegraph/appdash/opentracing"
-	"syscall"
-	endpoint "todo/pkg/endpoint"
-	http1 "todo/pkg/http"
-	service "todo/pkg/service"
 )
 
 var tracer opentracinggo.Tracer
@@ -48,10 +51,11 @@ var appdashAddr = fs.String("appdash-addr", "", "Enable Appdash tracing via an A
 func Run() {
 	viper.SetConfigFile("config.json")
 	err := viper.ReadInConfig()
-	if err != nil{
+	if err != nil {
 		panic(err.Error())
 	}
 
+	db.ConnectPGDB().AutoMigrate(&io.Todo{})
 
 	fs.Parse(os.Args[1:])
 

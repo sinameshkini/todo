@@ -3,8 +3,9 @@ package endpoint
 import (
 	"context"
 	io "todo/pkg/io"
-	endpoint "github.com/go-kit/kit/endpoint"
 	service "todo/pkg/service"
+
+	endpoint "github.com/go-kit/kit/endpoint"
 )
 
 // GetRequest collects the request parameters for the Get method.
@@ -48,6 +49,7 @@ func MakeAddEndpoint(s service.TodoService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(AddRequest)
 		t, error := s.Add(ctx, req.Todo)
+
 		return AddResponse{
 			Error: error,
 			T:     t,
