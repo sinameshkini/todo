@@ -32,15 +32,28 @@ func (b *basicTodoService) Add(ctx context.Context, todo io.Todo) (t io.Todo, er
 	return todo, error
 }
 func (b *basicTodoService) SetComplete(ctx context.Context, id string) (error error) {
-	// TODO implement the business logic of SetComplete
-	return error
+	session := db.ConnectPGDB()
+	defer session.Close()
+	todo := io.Todo{}
+	err := session.Where("id = ?", id).Find(&todo).Error
+	if err != nil{
+		return err
+	}
+	todo.Complete = true
+	return session.Save(&todo).Error
 }
 func (b *basicTodoService) RemoveComplete(ctx context.Context, id string) (error error) {
-	// TODO implement the business logic of RemoveComplete
-	return error
+	session := db.ConnectPGDB()
+	defer session.Close()
+	todo := io.Todo{}
+	err := session.Where("id = ?", id).Find(&todo).Error
+	if err != nil{
+		return err
+	}
+	todo.Complete = false
+	return session.Save(&todo).Error
 }
 func (b *basicTodoService) Delete(ctx context.Context, id string) (error error) {
-	// TODO implement the business logic of Delete
 	session := db.ConnectPGDB()
 	defer session.Close()
 	todo := io.Todo{}
