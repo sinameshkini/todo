@@ -54,3 +54,10 @@ func (l loggingMiddleware) Delete(ctx context.Context, id string) (error error) 
 	}()
 	return l.next.Delete(ctx, id)
 }
+
+func (l loggingMiddleware) Update(ctx context.Context, todo io.Todo) (t io.Todo, error error) {
+	defer func() {
+		l.logger.Log("method", "Update", "todo", todo, "t", t, "error", error)
+	}()
+	return l.next.Update(ctx, todo)
+}

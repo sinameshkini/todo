@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	http1 "net/http"
+	endpoint "todo/pkg/endpoint"
+
 	http "github.com/go-kit/kit/transport/http"
 	handlers "github.com/gorilla/handlers"
 	mux "github.com/gorilla/mux"
-	http1 "net/http"
-	endpoint "todo/pkg/endpoint"
 )
 
 // makeGetHandler creates the handler logic
@@ -174,6 +175,7 @@ func makeDeleteHandler(m *mux.Router, endpoints endpoint.Endpoints, options []ht
 			handlers.AllowedOrigins([]string{"*"}),
 		)(http.NewServer(endpoints.DeleteEndpoint, decodeDeleteRequest, encodeDeleteResponse, options...)))
 }
+
 // decodeDeleteRequest is a transport/http.DecodeRequestFunc that decodes a
 // JSON-encoded request from the HTTP request body.
 //func decodeDeleteRequest(_ context.Context, r *http1.Request) (interface{}, error) {
@@ -193,8 +195,6 @@ func decodeDeleteRequest(_ context.Context, r *http1.Request) (interface{}, erro
 	}
 	return req, nil
 }
-
-
 
 // encodeDeleteResponse is a transport/http.EncodeResponseFunc that encodes
 // the response as JSON to the response writer
@@ -227,4 +227,33 @@ func err2code(err error) int {
 
 type errorWrapper struct {
 	Error string `json:"error"`
+}
+
+
+func makeUpdateHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("PUT", "OPTIONS").Path("/update").Handler(
+		handlers.CORS(
+			handlers.AllowedOrigins([]string{"*"}),
+			handlers.AllowedHeaders([]string{"Content-Type", "Content-Length"}),
+			handlers.AllowedMethods([]string{"PUT"}),
+		)(http.NewServer(endpoints.UpdateEndpoint, decodeUpdateRequest, encodeUpdateResponse, options...)))
+}
+// decodeUpdateRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeUpdateRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	req := endpoint.UpdateRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req.Todo)
+	return req, err
+}
+
+// encodeUpdateResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeUpdateResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
 }

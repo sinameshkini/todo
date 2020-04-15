@@ -15,6 +15,7 @@ type TodoService interface {
 	SetComplete(ctx context.Context, id string) (error error)
 	RemoveComplete(ctx context.Context, id string) (error error)
 	Delete(ctx context.Context, id string) (error error)
+	Update(ctx context.Context, todo io.Todo) (t io.Todo, error error)
 }
 
 type basicTodoService struct{}
@@ -36,7 +37,7 @@ func (b *basicTodoService) SetComplete(ctx context.Context, id string) (error er
 	defer session.Close()
 	todo := io.Todo{}
 	err := session.Where("id = ?", id).Find(&todo).Error
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	todo.Complete = true
@@ -47,7 +48,7 @@ func (b *basicTodoService) RemoveComplete(ctx context.Context, id string) (error
 	defer session.Close()
 	todo := io.Todo{}
 	err := session.Where("id = ?", id).Find(&todo).Error
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	todo.Complete = false
@@ -58,10 +59,17 @@ func (b *basicTodoService) Delete(ctx context.Context, id string) (error error) 
 	defer session.Close()
 	todo := io.Todo{}
 	err := session.Where("id = ?", id).Find(&todo).Error
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	return session.Delete(&todo).Error
+}
+
+func (b *basicTodoService) Update(ctx context.Context, todo io.Todo) (t io.Todo, error error) {
+	session := db.ConnectPGDB()
+	defer session.Close()
+	error = session.Save(&todo).Error
+	return todo, error
 }
 
 // NewBasicTodoService returns a naive, stateless implementation of TodoService.
@@ -77,3 +85,4 @@ func New(middleware []Middleware) TodoService {
 	}
 	return svc
 }
+

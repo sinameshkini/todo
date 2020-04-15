@@ -190,3 +190,41 @@ func (e Endpoints) Delete(ctx context.Context, id string) (error error) {
 	}
 	return response.(DeleteResponse).Error
 }
+
+// UpdateRequest collects the request parameters for the Update method.
+type UpdateRequest struct {
+	Todo io.Todo `json:"todo"`
+}
+
+// UpdateResponse collects the response parameters for the Update method.
+type UpdateResponse struct {
+	T     io.Todo `json:"t"`
+	Error error   `json:"error"`
+}
+
+// MakeUpdateEndpoint returns an endpoint that invokes Update on the service.
+func MakeUpdateEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(UpdateRequest)
+		t, error := s.Update(ctx, req.Todo)
+		return UpdateResponse{
+			Error: error,
+			T:     t,
+		}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r UpdateResponse) Failed() error {
+	return r.Error
+}
+
+// Update implements Service. Primarily useful in a client.
+func (e Endpoints) Update(ctx context.Context, todo io.Todo) (t io.Todo, error error) {
+	request := UpdateRequest{Todo: todo}
+	response, err := e.UpdateEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(UpdateResponse).T, response.(UpdateResponse).Error
+}
