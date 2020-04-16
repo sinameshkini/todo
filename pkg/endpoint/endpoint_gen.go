@@ -17,6 +17,7 @@ type Endpoints struct {
 	DeleteEndpoint         endpoint.Endpoint
 	UpdateEndpoint         endpoint.Endpoint
 	SetStarEndpoint        endpoint.Endpoint
+	ReplyToEndpoint        endpoint.Endpoint
 }
 
 // New returns a Endpoints struct that wraps the provided service, and wires in all of the
@@ -27,6 +28,7 @@ func New(s service.TodoService, mdw map[string][]endpoint.Middleware) Endpoints 
 		DeleteEndpoint:         MakeDeleteEndpoint(s),
 		GetEndpoint:            MakeGetEndpoint(s),
 		RemoveCompleteEndpoint: MakeRemoveCompleteEndpoint(s),
+		ReplyToEndpoint:        MakeReplyToEndpoint(s),
 		SetCompleteEndpoint:    MakeSetCompleteEndpoint(s),
 		SetStarEndpoint:        MakeSetStarEndpoint(s),
 		UpdateEndpoint:         MakeUpdateEndpoint(s),
@@ -51,6 +53,9 @@ func New(s service.TodoService, mdw map[string][]endpoint.Middleware) Endpoints 
 	}
 	for _, m := range mdw["SetStar"] {
 		eps.SetStarEndpoint = m(eps.SetStarEndpoint)
+	}
+	for _, m := range mdw["ReplyTo"] {
+		eps.ReplyToEndpoint = m(eps.ReplyToEndpoint)
 	}
 	return eps
 }

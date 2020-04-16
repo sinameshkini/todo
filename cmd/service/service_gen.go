@@ -25,6 +25,7 @@ func defaultHttpOptions(logger log.Logger, tracer opentracinggo.Tracer) map[stri
 		"Delete":         {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "Delete", logger))},
 		"Get":            {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "Get", logger))},
 		"RemoveComplete": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "RemoveComplete", logger))},
+		"ReplyTo":        {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "ReplyTo", logger))},
 		"SetComplete":    {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "SetComplete", logger))},
 		"SetStar":        {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "SetStar", logger))},
 		"Update":         {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "Update", logger))},
@@ -39,12 +40,13 @@ func addDefaultEndpointMiddleware(logger log.Logger, duration *prometheus.Summar
 	mw["Delete"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "Delete")), endpoint.InstrumentingMiddleware(duration.With("method", "Delete"))}
 	mw["Update"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "Update")), endpoint.InstrumentingMiddleware(duration.With("method", "Update"))}
 	mw["SetStar"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "SetStar")), endpoint.InstrumentingMiddleware(duration.With("method", "SetStar"))}
+	mw["ReplyTo"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "ReplyTo")), endpoint.InstrumentingMiddleware(duration.With("method", "ReplyTo"))}
 }
 func addDefaultServiceMiddleware(logger log.Logger, mw []service.Middleware) []service.Middleware {
 	return append(mw, service.LoggingMiddleware(logger))
 }
 func addEndpointMiddlewareToAllMethods(mw map[string][]endpoint1.Middleware, m endpoint1.Middleware) {
-	methods := []string{"Get", "Add", "SetComplete", "RemoveComplete", "Delete", "Update", "SetStar"}
+	methods := []string{"Get", "Add", "SetComplete", "RemoveComplete", "Delete", "Update", "SetStar", "ReplyTo"}
 	for _, v := range methods {
 		mw[v] = append(mw[v], m)
 	}

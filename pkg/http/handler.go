@@ -282,3 +282,28 @@ func encodeSetStarResponse(ctx context.Context, w http1.ResponseWriter, response
 	err = json.NewEncoder(w).Encode(response)
 	return
 }
+
+// makeReplyToHandler creates the handler logic
+func makeReplyToHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("POST").Path("/reply-to").Handler(handlers.CORS(handlers.AllowedMethods([]string{"POST"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.ReplyToEndpoint, decodeReplyToRequest, encodeReplyToResponse, options...)))
+}
+
+// decodeReplyToRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeReplyToRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	req := endpoint.ReplyToRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	return req, err
+}
+
+// encodeReplyToResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeReplyToResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}

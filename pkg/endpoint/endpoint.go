@@ -263,3 +263,45 @@ func MakeSetStarEndpoint(s service.TodoService) endpoint.Endpoint {
 		return SetStarResponse{Error: error}, nil
 	}
 }
+
+// ReplyToRequest collects the request parameters for the ReplyTo method.
+type ReplyToRequest struct {
+	ParentId uint    `json:"parent_id"`
+	Todo     io.Todo `json:"todo"`
+}
+
+// ReplyToResponse collects the response parameters for the ReplyTo method.
+type ReplyToResponse struct {
+	T     io.Todo `json:"t"`
+	Error error   `json:"error"`
+}
+
+// MakeReplyToEndpoint returns an endpoint that invokes ReplyTo on the service.
+func MakeReplyToEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(ReplyToRequest)
+		t, error := s.ReplyTo(ctx, req.ParentId, req.Todo)
+		return ReplyToResponse{
+			Error: error,
+			T:     t,
+		}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r ReplyToResponse) Failed() error {
+	return r.Error
+}
+
+// ReplyTo implements Service. Primarily useful in a client.
+func (e Endpoints) ReplyTo(ctx context.Context, parentId uint, todo io.Todo) (t io.Todo, error error) {
+	request := ReplyToRequest{
+		ParentId: parentId,
+		Todo:     todo,
+	}
+	response, err := e.ReplyToEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(ReplyToResponse).T, response.(ReplyToResponse).Error
+}

@@ -68,3 +68,10 @@ func (l loggingMiddleware) SetStar(ctx context.Context, id string, star uint8) (
 	}()
 	return l.next.SetStar(ctx, id, star)
 }
+
+func (l loggingMiddleware) ReplyTo(ctx context.Context, parentId uint, todo io.Todo) (t io.Todo, error error) {
+	defer func() {
+		l.logger.Log("method", "ReplyTo", "parentId", parentId, "todo", todo, "t", t, "error", error)
+	}()
+	return l.next.ReplyTo(ctx, parentId, todo)
+}

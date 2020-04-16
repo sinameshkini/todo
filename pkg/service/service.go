@@ -18,6 +18,7 @@ type TodoService interface {
 	Delete(ctx context.Context, id string) (error error)
 	Update(ctx context.Context, todo io.Todo) (t io.Todo, error error)
 	SetStar(ctx context.Context, id string, star uint8) (error error)
+	ReplyTo(ctx context.Context, parentId uint, todo io.Todo) (t io.Todo, error error)
 }
 
 type basicTodoService struct{}
@@ -96,9 +97,18 @@ func (b *basicTodoService) SetStar(ctx context.Context, id string, star uint8) (
 	if err != nil {
 		return err
 	}
-	if star < 0 || star > 5{
+	if star < 0 || star > 5 {
 		return errors.New("star value out of range. valid range is 0 to 5")
 	}
 	todo.Star = star
 	return session.Save(&todo).Error
+}
+
+func (b *basicTodoService) ReplyTo(ctx context.Context, parentId uint, todo io.Todo) (t io.Todo, error error) {
+	// TODO implement the business logic of ReplyTo
+	session := db.ConnectPGDB()
+	defer session.Close()
+	todo.ParentID = parentId
+	error = session.Create(&todo).Error
+	return todo, error
 }
