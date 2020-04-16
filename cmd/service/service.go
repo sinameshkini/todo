@@ -56,7 +56,7 @@ func Run() {
 	}
 
 	db.ConnectPGDB().AutoMigrate(&io.Todo{})
-
+	db.ConnectPGDB().AutoMigrate(&io.TodoCategory{})
 	fs.Parse(os.Args[1:])
 
 	// Create a single logger, which we'll use and give to other components.

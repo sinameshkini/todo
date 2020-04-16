@@ -11,6 +11,7 @@ import (
 type TodoService interface {
 	// Add your methods here
 	// e.x: Foo(ctx context.Context,s string)(rs string, err error)
+	// todo methods
 	Get(ctx context.Context) (t []io.Todo, error error)
 	Add(ctx context.Context, todo io.Todo) (t io.Todo, error error)
 	SetComplete(ctx context.Context, id string) (error error)
@@ -20,6 +21,13 @@ type TodoService interface {
 	SetStar(ctx context.Context, id string, star uint8) (error error)
 	ReplyTo(ctx context.Context, parentId uint, todo io.Todo) (t io.Todo, error error)
 	GetChildes(ctx context.Context, id string) (t []io.Todo, error error)
+
+	// Category methods
+	GetCategory(ctx context.Context) (c []io.TodoCategory, error error)
+	AddCategory(ctx context.Context, category io.TodoCategory) (c io.TodoCategory, error error)
+	UpdateCategory(ctx context.Context, category io.TodoCategory) (c io.TodoCategory, error error)
+	DeleteCategory(ctx context.Context, id string) (error error)
+	GetCatChildes(ctx context.Context, id string) (c []io.TodoCategory, error error)
 }
 
 type basicTodoService struct{}
@@ -119,3 +127,42 @@ func (b *basicTodoService) GetChildes(ctx context.Context, id string) (t []io.To
 	error = session.Where("parent_id = ?", id).Find(&t).Error
 	return t, error
 }
+
+func (b *basicTodoService) AddCategory(ctx context.Context, category io.TodoCategory) (c io.TodoCategory, error error) {
+	session := db.ConnectPGDB()
+	defer session.Close()
+	error = session.Create(&category).Error
+	return category, error
+}
+
+func (b *basicTodoService) GetCategory(ctx context.Context) (c []io.TodoCategory, error error) {
+	session := db.ConnectPGDB()
+	defer session.Close()
+	error = session.Find(&c).Error
+	return c, error
+}
+func (b *basicTodoService) UpdateCategory(ctx context.Context, category io.TodoCategory) (c io.TodoCategory, error error) {
+	// TODO implement the business logic of UpdateCategory
+	session := db.ConnectPGDB()
+	defer session.Close()
+	error = session.Save(&category).Error
+	return category, error
+}
+func (b *basicTodoService) DeleteCategory(ctx context.Context, id string) (error error) {
+	// TODO implement the business logic of DeleteCategory
+	session := db.ConnectPGDB()
+	defer session.Close()
+	category := io.TodoCategory{}
+	err := session.Where("id = ?", id).Find(&category).Error
+	if err != nil {
+		return err
+	}
+	return session.Delete(&category).Error
+}
+
+func (b *basicTodoService) GetCatChildes(ctx context.Context, id string) (c []io.TodoCategory, error error) {
+	// TODO implement the business logic of GetCatChildes
+	session := db.ConnectPGDB()
+	defer session.Close()
+	error = session.Where("parent_id = ?", id).Find(&c).Error
+	return c, error}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	http1 "net/http"
 	endpoint "todo/pkg/endpoint"
 
@@ -322,7 +323,7 @@ func decodeGetChildesRequest(_ context.Context, r *http1.Request) (interface{}, 
 		return nil, errors.New("not a valid ID")
 	}
 	req := endpoint.GetChildesRequest{
-		Id:id,
+		Id: id,
 	}
 	err := json.NewDecoder(r.Body).Decode(&req)
 	return req, err
@@ -331,6 +332,132 @@ func decodeGetChildesRequest(_ context.Context, r *http1.Request) (interface{}, 
 // encodeGetChildesResponse is a transport/http.EncodeResponseFunc that encodes
 // the response as JSON to the response writer
 func encodeGetChildesResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}
+
+// makeAddCategoryHandler creates the handler logic
+func makeAddCategoryHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("POST").Path("/add-category").Handler(handlers.CORS(handlers.AllowedMethods([]string{"POST"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.AddCategoryEndpoint, decodeAddCategoryRequest, encodeAddCategoryResponse, options...)))
+}
+
+// decodeAddCategoryRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeAddCategoryRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	fmt.Println(r.Body)
+	req := endpoint.AddCategoryRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req.Category)
+	return req, err
+}
+
+// encodeAddCategoryResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeAddCategoryResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}
+
+// makeGetCategoryHandler creates the handler logic
+func makeGetCategoryHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("GET").Path("/get-category").Handler(handlers.CORS(handlers.AllowedMethods([]string{"GET"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.GetCategoryEndpoint, decodeGetCategoryRequest, encodeGetCategoryResponse, options...)))
+}
+
+// decodeGetCategoryRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeGetCategoryRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	req := endpoint.GetCategoryRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	return req, err
+}
+
+// encodeGetCategoryResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeGetCategoryResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}
+
+// makeUpdateCategoryHandler creates the handler logic
+func makeUpdateCategoryHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("PUT").Path("/update-category").Handler(handlers.CORS(handlers.AllowedMethods([]string{"PUT"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.UpdateCategoryEndpoint, decodeUpdateCategoryRequest, encodeUpdateCategoryResponse, options...)))
+}
+
+// decodeUpdateCategoryRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeUpdateCategoryRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	req := endpoint.UpdateCategoryRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req.Category)
+	return req, err
+}
+
+// encodeUpdateCategoryResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeUpdateCategoryResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}
+
+// makeDeleteCategoryHandler creates the handler logic
+func makeDeleteCategoryHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("DELETE").Path("/delete-category").Handler(handlers.CORS(handlers.AllowedMethods([]string{"DELETE"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.DeleteCategoryEndpoint, decodeDeleteCategoryRequest, encodeDeleteCategoryResponse, options...)))
+}
+
+// decodeDeleteCategoryRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeDeleteCategoryRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	req := endpoint.DeleteCategoryRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	return req, err
+}
+
+// encodeDeleteCategoryResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeDeleteCategoryResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}
+
+// makeGetCatChildesHandler creates the handler logic
+func makeGetCatChildesHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("GET").Path("/get-cat-childes").Handler(handlers.CORS(handlers.AllowedMethods([]string{"GET"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.GetCatChildesEndpoint, decodeGetCatChildesRequest, encodeGetCatChildesResponse, options...)))
+}
+
+// decodeGetCatChildesRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeGetCatChildesRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	req := endpoint.GetCatChildesRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	return req, err
+}
+
+// encodeGetCatChildesResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeGetCatChildesResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
 	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
 		ErrorEncoder(ctx, f.Failed(), w)
 		return nil

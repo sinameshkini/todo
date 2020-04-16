@@ -22,14 +22,19 @@ func createService(endpoints endpoint.Endpoints) (g *group.Group) {
 func defaultHttpOptions(logger log.Logger, tracer opentracinggo.Tracer) map[string][]http.ServerOption {
 	options := map[string][]http.ServerOption{
 		"Add":            {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "Add", logger))},
+		"AddCategory":    {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "AddCategory", logger))},
 		"Delete":         {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "Delete", logger))},
+		"DeleteCategory": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "DeleteCategory", logger))},
 		"Get":            {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "Get", logger))},
+		"GetCatChildes":  {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "GetCatChildes", logger))},
+		"GetCategory":    {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "GetCategory", logger))},
 		"GetChildes":     {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "GetChildes", logger))},
 		"RemoveComplete": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "RemoveComplete", logger))},
 		"ReplyTo":        {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "ReplyTo", logger))},
 		"SetComplete":    {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "SetComplete", logger))},
 		"SetStar":        {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "SetStar", logger))},
 		"Update":         {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "Update", logger))},
+		"UpdateCategory": {http.ServerErrorEncoder(http1.ErrorEncoder), http.ServerErrorLogger(logger), http.ServerBefore(opentracing.HTTPToContext(tracer, "UpdateCategory", logger))},
 	}
 	return options
 }
@@ -43,12 +48,17 @@ func addDefaultEndpointMiddleware(logger log.Logger, duration *prometheus.Summar
 	mw["SetStar"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "SetStar")), endpoint.InstrumentingMiddleware(duration.With("method", "SetStar"))}
 	mw["ReplyTo"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "ReplyTo")), endpoint.InstrumentingMiddleware(duration.With("method", "ReplyTo"))}
 	mw["GetChildes"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "GetChildes")), endpoint.InstrumentingMiddleware(duration.With("method", "GetChildes"))}
+	mw["GetCategory"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "GetCategory")), endpoint.InstrumentingMiddleware(duration.With("method", "GetCategory"))}
+	mw["AddCategory"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "AddCategory")), endpoint.InstrumentingMiddleware(duration.With("method", "AddCategory"))}
+	mw["UpdateCategory"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "UpdateCategory")), endpoint.InstrumentingMiddleware(duration.With("method", "UpdateCategory"))}
+	mw["DeleteCategory"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "DeleteCategory")), endpoint.InstrumentingMiddleware(duration.With("method", "DeleteCategory"))}
+	mw["GetCatChildes"] = []endpoint1.Middleware{endpoint.LoggingMiddleware(log.With(logger, "method", "GetCatChildes")), endpoint.InstrumentingMiddleware(duration.With("method", "GetCatChildes"))}
 }
 func addDefaultServiceMiddleware(logger log.Logger, mw []service.Middleware) []service.Middleware {
 	return append(mw, service.LoggingMiddleware(logger))
 }
 func addEndpointMiddlewareToAllMethods(mw map[string][]endpoint1.Middleware, m endpoint1.Middleware) {
-	methods := []string{"Get", "Add", "SetComplete", "RemoveComplete", "Delete", "Update", "SetStar", "ReplyTo", "GetChildes"}
+	methods := []string{"Get", "Add", "SetComplete", "RemoveComplete", "Delete", "Update", "SetStar", "ReplyTo", "GetChildes", "GetCategory", "AddCategory", "UpdateCategory", "DeleteCategory", "GetCatChildes"}
 	for _, v := range methods {
 		mw[v] = append(mw[v], m)
 	}

@@ -21,5 +21,10 @@ func NewHTTPHandler(endpoints endpoint.Endpoints, options map[string][]http.Serv
 	makeSetStarHandler(m, endpoints, options["SetStar"])
 	makeReplyToHandler(m, endpoints, options["ReplyTo"])
 	makeGetChildesHandler(m, endpoints, options["GetChildes"])
+	makeGetCategoryHandler(m, endpoints, options["GetCategory"])
+	makeAddCategoryHandler(m, endpoints, options["AddCategory"])
+	makeUpdateCategoryHandler(m, endpoints, options["UpdateCategory"])
+	makeDeleteCategoryHandler(m, endpoints, options["DeleteCategory"])
+	makeGetCatChildesHandler(m, endpoints, options["GetCatChildes"])
 	return m
 }

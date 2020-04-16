@@ -82,3 +82,36 @@ func (l loggingMiddleware) GetChildes(ctx context.Context, id string) (t []io.To
 	}()
 	return l.next.GetChildes(ctx, id)
 }
+
+func (l loggingMiddleware) AddCategory(ctx context.Context, category io.TodoCategory) (c io.TodoCategory, error error) {
+	defer func() {
+		l.logger.Log("method", "AddCategory", "category", category, "c", c, "error", error)
+	}()
+	return l.next.AddCategory(ctx, category)
+}
+
+func (l loggingMiddleware) GetCategory(ctx context.Context) (c []io.TodoCategory, error error) {
+	defer func() {
+		l.logger.Log("method", "GetCategory", "c", c, "error", error)
+	}()
+	return l.next.GetCategory(ctx)
+}
+func (l loggingMiddleware) UpdateCategory(ctx context.Context, category io.TodoCategory) (c io.TodoCategory, error error) {
+	defer func() {
+		l.logger.Log("method", "UpdateCategory", "category", category, "c", c, "error", error)
+	}()
+	return l.next.UpdateCategory(ctx, category)
+}
+func (l loggingMiddleware) DeleteCategory(ctx context.Context, id string) (error error) {
+	defer func() {
+		l.logger.Log("method", "DeleteCategory", "id", id, "error", error)
+	}()
+	return l.next.DeleteCategory(ctx, id)
+}
+
+func (l loggingMiddleware) GetCatChildes(ctx context.Context, id string) (c []io.TodoCategory, error error) {
+	defer func() {
+		l.logger.Log("method", "GetCatChildes", "id", id, "c", c, "error", error)
+	}()
+	return l.next.GetCatChildes(ctx, id)
+}

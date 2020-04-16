@@ -343,3 +343,186 @@ func (e Endpoints) GetChildes(ctx context.Context, id string) (t []io.Todo, erro
 	}
 	return response.(GetChildesResponse).T, response.(GetChildesResponse).Error
 }
+
+// AddCategoryRequest collects the request parameters for the AddCategory method.
+type AddCategoryRequest struct {
+	Category io.TodoCategory `json:"category"`
+}
+
+// AddCategoryResponse collects the response parameters for the AddCategory method.
+type AddCategoryResponse struct {
+	C     io.TodoCategory `json:"c"`
+	Error error           `json:"error"`
+}
+
+// MakeAddCategoryEndpoint returns an endpoint that invokes AddCategory on the service.
+func MakeAddCategoryEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(AddCategoryRequest)
+		c, error := s.AddCategory(ctx, req.Category)
+		return AddCategoryResponse{
+			C:     c,
+			Error: error,
+		}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r AddCategoryResponse) Failed() error {
+	return r.Error
+}
+
+// AddCategory implements Service. Primarily useful in a client.
+func (e Endpoints) AddCategory(ctx context.Context, category io.TodoCategory) (c io.TodoCategory, error error) {
+	request := AddCategoryRequest{Category: category}
+	response, err := e.AddCategoryEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(AddCategoryResponse).C, response.(AddCategoryResponse).Error
+}
+
+// GetCategoryRequest collects the request parameters for the GetCategory method.
+type GetCategoryRequest struct{}
+
+// GetCategoryResponse collects the response parameters for the GetCategory method.
+type GetCategoryResponse struct {
+	C     []io.TodoCategory `json:"c"`
+	Error error             `json:"error"`
+}
+
+// MakeGetCategoryEndpoint returns an endpoint that invokes GetCategory on the service.
+func MakeGetCategoryEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		c, error := s.GetCategory(ctx)
+		return GetCategoryResponse{
+			C:     c,
+			Error: error,
+		}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r GetCategoryResponse) Failed() error {
+	return r.Error
+}
+
+// UpdateCategoryRequest collects the request parameters for the UpdateCategory method.
+type UpdateCategoryRequest struct {
+	Category io.TodoCategory `json:"category"`
+}
+
+// UpdateCategoryResponse collects the response parameters for the UpdateCategory method.
+type UpdateCategoryResponse struct {
+	C     io.TodoCategory `json:"c"`
+	Error error           `json:"error"`
+}
+
+// MakeUpdateCategoryEndpoint returns an endpoint that invokes UpdateCategory on the service.
+func MakeUpdateCategoryEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(UpdateCategoryRequest)
+		c, error := s.UpdateCategory(ctx, req.Category)
+		return UpdateCategoryResponse{
+			C:     c,
+			Error: error,
+		}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r UpdateCategoryResponse) Failed() error {
+	return r.Error
+}
+
+// DeleteCategoryRequest collects the request parameters for the DeleteCategory method.
+type DeleteCategoryRequest struct {
+	Id string `json:"id"`
+}
+
+// DeleteCategoryResponse collects the response parameters for the DeleteCategory method.
+type DeleteCategoryResponse struct {
+	Error error `json:"error"`
+}
+
+// MakeDeleteCategoryEndpoint returns an endpoint that invokes DeleteCategory on the service.
+func MakeDeleteCategoryEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(DeleteCategoryRequest)
+		error := s.DeleteCategory(ctx, req.Id)
+		return DeleteCategoryResponse{Error: error}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r DeleteCategoryResponse) Failed() error {
+	return r.Error
+}
+
+// GetCategory implements Service. Primarily useful in a client.
+func (e Endpoints) GetCategory(ctx context.Context) (c []io.TodoCategory, error error) {
+	request := GetCategoryRequest{}
+	response, err := e.GetCategoryEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(GetCategoryResponse).C, response.(GetCategoryResponse).Error
+}
+
+// UpdateCategory implements Service. Primarily useful in a client.
+func (e Endpoints) UpdateCategory(ctx context.Context, category io.TodoCategory) (c io.TodoCategory, error error) {
+	request := UpdateCategoryRequest{Category: category}
+	response, err := e.UpdateCategoryEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(UpdateCategoryResponse).C, response.(UpdateCategoryResponse).Error
+}
+
+// DeleteCategory implements Service. Primarily useful in a client.
+func (e Endpoints) DeleteCategory(ctx context.Context, id string) (error error) {
+	request := DeleteCategoryRequest{Id: id}
+	response, err := e.DeleteCategoryEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(DeleteCategoryResponse).Error
+}
+
+// GetCatChildesRequest collects the request parameters for the GetCatChildes method.
+type GetCatChildesRequest struct {
+	Id string `json:"id"`
+}
+
+// GetCatChildesResponse collects the response parameters for the GetCatChildes method.
+type GetCatChildesResponse struct {
+	C     []io.TodoCategory `json:"c"`
+	Error error             `json:"error"`
+}
+
+// MakeGetCatChildesEndpoint returns an endpoint that invokes GetCatChildes on the service.
+func MakeGetCatChildesEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetCatChildesRequest)
+		c, error := s.GetCatChildes(ctx, req.Id)
+		return GetCatChildesResponse{
+			C:     c,
+			Error: error,
+		}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r GetCatChildesResponse) Failed() error {
+	return r.Error
+}
+
+// GetCatChildes implements Service. Primarily useful in a client.
+func (e Endpoints) GetCatChildes(ctx context.Context, id string) (c []io.TodoCategory, error error) {
+	request := GetCatChildesRequest{Id: id}
+	response, err := e.GetCatChildesEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(GetCatChildesResponse).C, response.(GetCatChildesResponse).Error
+}

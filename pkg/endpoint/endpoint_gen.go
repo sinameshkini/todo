@@ -19,20 +19,30 @@ type Endpoints struct {
 	SetStarEndpoint        endpoint.Endpoint
 	ReplyToEndpoint        endpoint.Endpoint
 	GetChildesEndpoint     endpoint.Endpoint
+	GetCategoryEndpoint    endpoint.Endpoint
+	AddCategoryEndpoint    endpoint.Endpoint
+	UpdateCategoryEndpoint endpoint.Endpoint
+	DeleteCategoryEndpoint endpoint.Endpoint
+	GetCatChildesEndpoint  endpoint.Endpoint
 }
 
 // New returns a Endpoints struct that wraps the provided service, and wires in all of the
 // expected endpoint middlewares
 func New(s service.TodoService, mdw map[string][]endpoint.Middleware) Endpoints {
 	eps := Endpoints{
+		AddCategoryEndpoint:    MakeAddCategoryEndpoint(s),
 		AddEndpoint:            MakeAddEndpoint(s),
+		DeleteCategoryEndpoint: MakeDeleteCategoryEndpoint(s),
 		DeleteEndpoint:         MakeDeleteEndpoint(s),
+		GetCatChildesEndpoint:  MakeGetCatChildesEndpoint(s),
+		GetCategoryEndpoint:    MakeGetCategoryEndpoint(s),
 		GetChildesEndpoint:     MakeGetChildesEndpoint(s),
 		GetEndpoint:            MakeGetEndpoint(s),
 		RemoveCompleteEndpoint: MakeRemoveCompleteEndpoint(s),
 		ReplyToEndpoint:        MakeReplyToEndpoint(s),
 		SetCompleteEndpoint:    MakeSetCompleteEndpoint(s),
 		SetStarEndpoint:        MakeSetStarEndpoint(s),
+		UpdateCategoryEndpoint: MakeUpdateCategoryEndpoint(s),
 		UpdateEndpoint:         MakeUpdateEndpoint(s),
 	}
 	for _, m := range mdw["Get"] {
@@ -61,6 +71,21 @@ func New(s service.TodoService, mdw map[string][]endpoint.Middleware) Endpoints 
 	}
 	for _, m := range mdw["GetChildes"] {
 		eps.GetChildesEndpoint = m(eps.GetChildesEndpoint)
+	}
+	for _, m := range mdw["GetCategory"] {
+		eps.GetCategoryEndpoint = m(eps.GetCategoryEndpoint)
+	}
+	for _, m := range mdw["AddCategory"] {
+		eps.AddCategoryEndpoint = m(eps.AddCategoryEndpoint)
+	}
+	for _, m := range mdw["UpdateCategory"] {
+		eps.UpdateCategoryEndpoint = m(eps.UpdateCategoryEndpoint)
+	}
+	for _, m := range mdw["DeleteCategory"] {
+		eps.DeleteCategoryEndpoint = m(eps.DeleteCategoryEndpoint)
+	}
+	for _, m := range mdw["GetCatChildes"] {
+		eps.GetCatChildesEndpoint = m(eps.GetCatChildesEndpoint)
 	}
 	return eps
 }
