@@ -307,3 +307,35 @@ func encodeReplyToResponse(ctx context.Context, w http1.ResponseWriter, response
 	err = json.NewEncoder(w).Encode(response)
 	return
 }
+
+// makeGetChildesHandler creates the handler logic
+func makeGetChildesHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("GET").Path("/get-childes/{id}").Handler(handlers.CORS(handlers.AllowedMethods([]string{"GET"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.GetChildesEndpoint, decodeGetChildesRequest, encodeGetChildesResponse, options...)))
+}
+
+// decodeGetChildesRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeGetChildesRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		return nil, errors.New("not a valid ID")
+	}
+	req := endpoint.GetChildesRequest{
+		Id:id,
+	}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	return req, err
+}
+
+// encodeGetChildesResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeGetChildesResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}

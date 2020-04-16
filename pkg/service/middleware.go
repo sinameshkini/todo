@@ -75,3 +75,10 @@ func (l loggingMiddleware) ReplyTo(ctx context.Context, parentId uint, todo io.T
 	}()
 	return l.next.ReplyTo(ctx, parentId, todo)
 }
+
+func (l loggingMiddleware) GetChildes(ctx context.Context, id string) (t []io.Todo, error error) {
+	defer func() {
+		l.logger.Log("method", "GetChildes", "id", id, "t", t, "error", error)
+	}()
+	return l.next.GetChildes(ctx, id)
+}

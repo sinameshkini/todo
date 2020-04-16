@@ -305,3 +305,41 @@ func (e Endpoints) ReplyTo(ctx context.Context, parentId uint, todo io.Todo) (t 
 	}
 	return response.(ReplyToResponse).T, response.(ReplyToResponse).Error
 }
+
+// GetChildesRequest collects the request parameters for the GetChildes method.
+type GetChildesRequest struct {
+	Id string `json:"id"`
+}
+
+// GetChildesResponse collects the response parameters for the GetChildes method.
+type GetChildesResponse struct {
+	T     []io.Todo `json:"t"`
+	Error error     `json:"error"`
+}
+
+// MakeGetChildesEndpoint returns an endpoint that invokes GetChildes on the service.
+func MakeGetChildesEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetChildesRequest)
+		t, error := s.GetChildes(ctx, req.Id)
+		return GetChildesResponse{
+			Error: error,
+			T:     t,
+		}, nil
+	}
+}
+
+// Failed implements Failer.
+func (r GetChildesResponse) Failed() error {
+	return r.Error
+}
+
+// GetChildes implements Service. Primarily useful in a client.
+func (e Endpoints) GetChildes(ctx context.Context, id string) (t []io.Todo, error error) {
+	request := GetChildesRequest{Id: id}
+	response, err := e.GetChildesEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(GetChildesResponse).T, response.(GetChildesResponse).Error
+}

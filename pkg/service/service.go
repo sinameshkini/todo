@@ -19,6 +19,7 @@ type TodoService interface {
 	Update(ctx context.Context, todo io.Todo) (t io.Todo, error error)
 	SetStar(ctx context.Context, id string, star uint8) (error error)
 	ReplyTo(ctx context.Context, parentId uint, todo io.Todo) (t io.Todo, error error)
+	GetChildes(ctx context.Context, id string) (t []io.Todo, error error)
 }
 
 type basicTodoService struct{}
@@ -105,10 +106,16 @@ func (b *basicTodoService) SetStar(ctx context.Context, id string, star uint8) (
 }
 
 func (b *basicTodoService) ReplyTo(ctx context.Context, parentId uint, todo io.Todo) (t io.Todo, error error) {
-	// TODO implement the business logic of ReplyTo
 	session := db.ConnectPGDB()
 	defer session.Close()
 	todo.ParentID = parentId
 	error = session.Create(&todo).Error
 	return todo, error
+}
+
+func (b *basicTodoService) GetChildes(ctx context.Context, id string) (t []io.Todo, error error) {
+	session := db.ConnectPGDB()
+	defer session.Close()
+	error = session.Where("parent_id = ?", id).Find(&t).Error
+	return t, error
 }

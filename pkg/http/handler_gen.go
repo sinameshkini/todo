@@ -20,5 +20,6 @@ func NewHTTPHandler(endpoints endpoint.Endpoints, options map[string][]http.Serv
 	makeUpdateHandler(m, endpoints, options["Update"])
 	makeSetStarHandler(m, endpoints, options["SetStar"])
 	makeReplyToHandler(m, endpoints, options["ReplyTo"])
+	makeGetChildesHandler(m, endpoints, options["GetChildes"])
 	return m
 }
