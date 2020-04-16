@@ -61,3 +61,10 @@ func (l loggingMiddleware) Update(ctx context.Context, todo io.Todo) (t io.Todo,
 	}()
 	return l.next.Update(ctx, todo)
 }
+
+func (l loggingMiddleware) SetStar(ctx context.Context, id string, star uint8) (error error) {
+	defer func() {
+		l.logger.Log("method", "SetStar", "id", id, "star", star, "error", error)
+	}()
+	return l.next.SetStar(ctx, id, star)
+}

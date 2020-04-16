@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"todo/pkg/db"
 	"todo/pkg/io"
 )
@@ -16,6 +17,7 @@ type TodoService interface {
 	RemoveComplete(ctx context.Context, id string) (error error)
 	Delete(ctx context.Context, id string) (error error)
 	Update(ctx context.Context, todo io.Todo) (t io.Todo, error error)
+	SetStar(ctx context.Context, id string, star uint8) (error error)
 }
 
 type basicTodoService struct{}
@@ -86,3 +88,17 @@ func New(middleware []Middleware) TodoService {
 	return svc
 }
 
+func (b *basicTodoService) SetStar(ctx context.Context, id string, star uint8) (error error) {
+	session := db.ConnectPGDB()
+	defer session.Close()
+	todo := io.Todo{}
+	err := session.Where("id = ?", id).Find(&todo).Error
+	if err != nil {
+		return err
+	}
+	if star < 0 || star > 5{
+		return errors.New("star value out of range. valid range is 0 to 5")
+	}
+	todo.Star = star
+	return session.Save(&todo).Error
+}

@@ -18,5 +18,6 @@ func NewHTTPHandler(endpoints endpoint.Endpoints, options map[string][]http.Serv
 	makeRemoveCompleteHandler(m, endpoints, options["RemoveComplete"])
 	makeDeleteHandler(m, endpoints, options["Delete"])
 	makeUpdateHandler(m, endpoints, options["Update"])
+	makeSetStarHandler(m, endpoints, options["SetStar"])
 	return m
 }

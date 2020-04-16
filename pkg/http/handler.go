@@ -229,7 +229,6 @@ type errorWrapper struct {
 	Error string `json:"error"`
 }
 
-
 func makeUpdateHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
 	m.Methods("PUT", "OPTIONS").Path("/update").Handler(
 		handlers.CORS(
@@ -238,6 +237,7 @@ func makeUpdateHandler(m *mux.Router, endpoints endpoint.Endpoints, options []ht
 			handlers.AllowedMethods([]string{"PUT"}),
 		)(http.NewServer(endpoints.UpdateEndpoint, decodeUpdateRequest, encodeUpdateResponse, options...)))
 }
+
 // decodeUpdateRequest is a transport/http.DecodeRequestFunc that decodes a
 // JSON-encoded request from the HTTP request body.
 func decodeUpdateRequest(_ context.Context, r *http1.Request) (interface{}, error) {
@@ -249,6 +249,31 @@ func decodeUpdateRequest(_ context.Context, r *http1.Request) (interface{}, erro
 // encodeUpdateResponse is a transport/http.EncodeResponseFunc that encodes
 // the response as JSON to the response writer
 func encodeUpdateResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
+	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
+		ErrorEncoder(ctx, f.Failed(), w)
+		return nil
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	err = json.NewEncoder(w).Encode(response)
+	return
+}
+
+// makeSetStarHandler creates the handler logic
+func makeSetStarHandler(m *mux.Router, endpoints endpoint.Endpoints, options []http.ServerOption) {
+	m.Methods("PUT").Path("/set-star").Handler(handlers.CORS(handlers.AllowedMethods([]string{"PUT"}), handlers.AllowedOrigins([]string{"*"}))(http.NewServer(endpoints.SetStarEndpoint, decodeSetStarRequest, encodeSetStarResponse, options...)))
+}
+
+// decodeSetStarRequest is a transport/http.DecodeRequestFunc that decodes a
+// JSON-encoded request from the HTTP request body.
+func decodeSetStarRequest(_ context.Context, r *http1.Request) (interface{}, error) {
+	req := endpoint.SetStarRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	return req, err
+}
+
+// encodeSetStarResponse is a transport/http.EncodeResponseFunc that encodes
+// the response as JSON to the response writer
+func encodeSetStarResponse(ctx context.Context, w http1.ResponseWriter, response interface{}) (err error) {
 	if f, ok := response.(endpoint.Failure); ok && f.Failed() != nil {
 		ErrorEncoder(ctx, f.Failed(), w)
 		return nil

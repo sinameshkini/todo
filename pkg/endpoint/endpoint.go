@@ -228,3 +228,38 @@ func (e Endpoints) Update(ctx context.Context, todo io.Todo) (t io.Todo, error e
 	}
 	return response.(UpdateResponse).T, response.(UpdateResponse).Error
 }
+
+// Failed implements Failer.
+func (r SetStarResponse) Failed() error {
+	return r.Error
+}
+
+// SetStar implements Service. Primarily useful in a client.
+func (e Endpoints) SetStar(ctx context.Context, star uint8) (error error) {
+	request := SetStarRequest{Star: star}
+	response, err := e.SetStarEndpoint(ctx, request)
+	if err != nil {
+		return
+	}
+	return response.(SetStarResponse).Error
+}
+
+// SetStarRequest collects the request parameters for the SetStar method.
+type SetStarRequest struct {
+	Id   string `json:"id"`
+	Star uint8  `json:"star"`
+}
+
+// SetStarResponse collects the response parameters for the SetStar method.
+type SetStarResponse struct {
+	Error error `json:"error"`
+}
+
+// MakeSetStarEndpoint returns an endpoint that invokes SetStar on the service.
+func MakeSetStarEndpoint(s service.TodoService) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(SetStarRequest)
+		error := s.SetStar(ctx, req.Id, req.Star)
+		return SetStarResponse{Error: error}, nil
+	}
+}
